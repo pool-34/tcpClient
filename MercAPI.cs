@@ -7,32 +7,35 @@ namespace MercAPI
 {
     public class TcpSocket
     {
-        private int _port;
+        private bool   _debug;
+        private int    _port;
         private string _host;
-        private string _command;
+        private string _message;
         private string _answer;
-        public TcpSocket(string host, int port)
+        public TcpSocket(string host, int port, bool debug = false)
         { 
-            _host = host; 
-            _port = port;
-            _answer = "";
-            _command = "";
+            _debug   = debug;
+            _host    = host; 
+            _port    = port;
+            _answer  = "";
+            _message = "";
         }
-        public string Host { get => _host; set => _host = value; }
-        public int Port { get => _port; set => _port = value; }
-        public string Message { get =>  _command; set => _command = value;}
-        public string Answer { get => _answer; }
-        public bool Send(string message)
+        public string Host    { get =>  _host;    set => _host    = value; }
+        public int    Port    { get =>  _port;    set => _port    = value; }
+        public bool   Debag   { get =>  _debug;   set => _debug   = value; }
+        public string Message { get =>  _message; set => _message = value; }
+        public string Answer  { get =>  _answer; }
+        public bool Send(string message = "")
         {
-            _command = message;
+            _message = message;
             if (_port > 0)
             {
                 if (!string.IsNullOrEmpty(_host))
                 {
-                    if (!string.IsNullOrEmpty(_command))
+                    if (!string.IsNullOrEmpty(_message))
                     {
-                        byte[] bsize = BitConverter.GetBytes(_command.Length);
-                        byte[] bmsg  = Encoding.UTF8.GetBytes(_command);
+                        byte[] bsize = BitConverter.GetBytes(_message.Length);
+                        byte[] bmsg  = Encoding.UTF8.GetBytes(_message);
                         Array.Reverse(bsize);
                         var _data = bsize.Concat(bmsg);
                         byte[] bdata = _data.ToArray();
