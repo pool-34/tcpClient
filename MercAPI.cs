@@ -37,8 +37,9 @@ namespace MercAPI
                         byte[] bsize = BitConverter.GetBytes(_message.Length);
                         byte[] bmsg  = Encoding.UTF8.GetBytes(_message);
                         Array.Reverse(bsize);
-                        var _data = bsize.Concat(bmsg);
-                        byte[] bdata = _data.ToArray();
+                        //var _data = bsize.Concat(bmsg);
+                        //byte[] bdata = _data.ToArray();
+                        byte[] bdata = bsize.Concat(bmsg).ToArray();
                         IPEndPoint _endpoint    = new(IPAddress.Parse(_host), _port);
                         Socket _socket          = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                         _socket.Connect(_endpoint);
