@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace MercAPI
 {
@@ -108,16 +109,55 @@ namespace MercAPI
         {
             if (_connected) 
             {
-                _socket.Shutdown(SocketShutdown.Both);
-                _socket.Close();
-                _connected = false;
-                return true;
+                try
+                {
+                    _socket.Shutdown(SocketShutdown.Both);
+                    _socket.Close();
+                    _connected = false;
+                    return true;
+                }
+                catch (SocketException ex)
+                {
+                    _emessage = ex.Message;
+                    return false;
+                }
             }
             else
             {
                 _emessage = "NOT Connected!";
                 return false;
             }
+        }
+    }
+    public class OpenSession
+    {
+        public struct Request
+        {
+            public string? SessionKey { get; set; }
+            public string Command { get; set; }
+            public string PortName { get; set; }
+            public int BoudRate { get; set; }
+            public string Model { get; set; }
+            public string SerialNumber { get; set; }
+            public bool Debug { get; set; }
+            public string LogPath { get; set; }
+
+        }
+        public struct Answer
+        {
+            [JsonPropertyName("result")]
+            public int Result { get; set; }
+            [JsonPropertyName("description")]
+            public string Description { get; set; }
+            [JsonPropertyName("sessionKey")]
+            public string SessionKey { get; set; }
+            [JsonPropertyName("protocolVer")]
+            public string ProtocolVer { get; set; }
+            [JsonPropertyName("ffdTotalVer")]
+            public string FfdTotalVer { get; set; }
+            [JsonPropertyName("programDate")]
+            public string ProgramDate { get; set; }
+
         }
     }
 }
