@@ -7,27 +7,24 @@ namespace MercAPI
 {
     public class TcpSocket
     {
-        private bool   _debug;
-        private int    _port;
+        private int _port;
         private string _host;
         private string _message;
         private string _emessage;
         private string _answer;
         public TcpSocket(string host, int port, bool debug = false)
-        { 
-            _debug    = debug;
-            _host     = host; 
-            _port     = port;
-            _answer   = "";
-            _message  = "";
+        {
+            _host = host;
+            _port = port;
+            _answer = "";
+            _message = "";
             _emessage = "";
         }
-        public string Host      { get =>  _host;    set => _host    = value; }
-        public int    Port      { get =>  _port;    set => _port    = value; }
-        public bool   Debag     { get =>  _debug;   set => _debug   = value; }
-        public string Message   { get =>  _message; set => _message = value; }
-        public string Answer    { get =>  _answer; }
-        public string eMessage  { get =>  _emessage; }
+        public string Host { get => _host; set => _host = value; }
+        public int Port { get => _port; set => _port = value; }
+        public string Message { get => _message; set => _message = value; }
+        public string Answer { get => _answer; }
+        public string eMessage { get => _emessage; }
         public bool Send(string message = "")
         {
             _message = message;

@@ -13,15 +13,21 @@ namespace tcpClient
 
             MercAPI.TcpSocket tcpSocket = new MercAPI.TcpSocket(ip, port);
 
-            //tcpSocket.Message = @"{""command"": ""GetDriverInfo""}";
-            
-            tcpSocket.Send(@"{""command"": ""GetDriverInfo""}");
+            var mess = @"{""command"": ""GetDriverInfo""}";
 
+            if (tcpSocket.Send(mess))
+            {
+                Console.WriteLine(tcpSocket.Host);
+                Console.WriteLine(tcpSocket.Port);
+                Console.WriteLine(tcpSocket.Message);
+                Console.WriteLine(tcpSocket.Answer);
+            }
+            else
+            {
+                Console.WriteLine("Ошибка!");
+                Console.WriteLine(tcpSocket.eMessage);
+            }
 
-            Console.WriteLine(tcpSocket.Host);
-            Console.WriteLine(tcpSocket.Port);
-            Console.WriteLine(tcpSocket.Message);
-            Console.WriteLine(tcpSocket.Answer);
         }
 
     }
