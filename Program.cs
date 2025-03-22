@@ -13,6 +13,8 @@ namespace tcpClient
 
             MercAPI.TcpSocket tcpSocket = new MercAPI.TcpSocket(ip, port);
 
+            tcpSocket.Open();
+
             var mess = @"{""command"": ""GetDriverInfo""}";
 
             if (tcpSocket.Send(mess))
@@ -25,9 +27,10 @@ namespace tcpClient
             else
             {
                 Console.WriteLine("Ошибка!");
-                Console.WriteLine(tcpSocket.eMessage);
+                Console.WriteLine(tcpSocket.EMessage);
             }
 
+            if (tcpSocket.Connected) tcpSocket.Close();
         }
 
     }
