@@ -2,28 +2,21 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MercAPI
 {
-    public class TcpSocket
+    public class TcpSocket(string host, int port)
     {
-        private int    _port;
-        private bool   _connected;
-        private string _host;
-        private Socket _socket;
-        private string _message;
-        private string _emessage;
-        private string _answer;
-        public TcpSocket(string host, int port)
-        {
-            _connected = false;
-            _host = host;
-            _port = port;
-            _answer = "";
-            _message = "";
-            _emessage = "";
-        }
+        private int _port = port;
+        private bool _connected = false;
+        private string _host = host;
+        private Socket? _socket;
+        private string _message = "";
+        private string _emessage = "";
+        private string _answer = "";
+
         public string Host { get => _host; set => _host = value; }
         public int Port { get => _port; set => _port = value; }
         public string Message { get => _message; set => _message = value; }
@@ -34,7 +27,7 @@ namespace MercAPI
         {
             if (_port > 0)
             {
-                if (!string.IsNullOrEmpty(_host)) 
+                if (!string.IsNullOrEmpty(_host))
                 {
                     IPEndPoint _endpoint = new(IPAddress.Parse(_host), _port);
                     _socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -107,7 +100,7 @@ namespace MercAPI
         }
         public bool Close()
         {
-            if (_connected) 
+            if (_connected)
             {
                 try
                 {
@@ -129,10 +122,15 @@ namespace MercAPI
             }
         }
     }
-    public class OpenSession
+    public class Session3
     {
+        string? _message;
+
+        public string? Message { get => _message; set => _message = value; }
+
         public struct Request
         {
+            [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
             public string? SessionKey { get; set; }
             public string Command { get; set; }
             public string PortName { get; set; }
@@ -145,19 +143,93 @@ namespace MercAPI
         }
         public struct Answer
         {
-            [JsonPropertyName("result")]
             public int Result { get; set; }
-            [JsonPropertyName("description")]
             public string Description { get; set; }
-            [JsonPropertyName("sessionKey")]
             public string SessionKey { get; set; }
-            [JsonPropertyName("protocolVer")]
             public string ProtocolVer { get; set; }
-            [JsonPropertyName("ffdTotalVer")]
             public string FfdTotalVer { get; set; }
-            [JsonPropertyName("programDate")]
             public string ProgramDate { get; set; }
 
         }
+
+        public void Serialize(Session3.Request request)
+        {
+            JsonSerializerOptions options = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            };
+
+            _message = JsonSerializer.Serialize(request, options);
+        }
+
+        public void Deserialize(Session3.Answer answer, string jsonstring) 
+        { 
+            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+            answer = JsonSerializer.Deserialize<Session3.Answer>(jsonstring, options);
+
+        }
+        //public bool Open(TcpSocket socket, Session.Request request)
+        //{
+
+        //    return false;
+        //}
+    }
+    public class Session
+    {
+        SessionRequest _request;
+        SessionAnswer  _answer;
+        string? _message;
+
+        public SessionRequest Request { get => _request; set => _request = value; }
+        public SessionAnswer Answer { get => _answer; set => _answer = value; }
+        public string Message { get => _message; set => _message = value; }
+        public Session() 
+        {
+            _request = new SessionRequest();
+            _answer  = new SessionAnswer();
+        }
+
+        public void Serialize()
+        {
+            JsonSerializerOptions options = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            };
+
+            _message = JsonSerializer.Serialize(_request, options);
+        }
+
+        public void Deserialize(string jsonstring)
+        {
+            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+            _answer = JsonSerializer.Deserialize<SessionAnswer>(jsonstring, options);
+        }
+
+        public class SessionRequest
+        {
+            [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+            public string? SessionKey { get; set; }
+            public string Command { get; set; }
+            public string PortName { get; set; }
+            public int BoudRate { get; set; }
+            public string Model { get; set; }
+            public string SerialNumber { get; set; }
+            public bool Debug { get; set; }
+            public string LogPath { get; set; }
+        }
+        
+        public class SessionAnswer
+        {
+            public int Result { get; set; }
+            public string Description { get; set; }
+            public string ProtocolVer { get; set; }
+            public string FfdTotalVer { get; set; }
+            public string ProgramDate { get; set; }
+        }
+
     }
 }
+
+  
