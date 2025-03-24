@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static MercAPI.Session;
 
 namespace MercAPI
 {
@@ -121,60 +122,57 @@ namespace MercAPI
                 return false;
             }
         }
+
     }
-    public class Session3
+
+    public class DriverInfo
     {
-        string? _message;
+        DriverRequest _request;
+        static DriverAnswer _answer;
 
-        public string? Message { get => _message; set => _message = value; }
+        public DriverRequest Request { get => _request; }
+        public DriverAnswer Answer { get => _answer; }
 
-        public struct Request
+        public DriverInfo()
         {
-            [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-            public string? SessionKey { get; set; }
-            public string Command { get; set; }
-            public string PortName { get; set; }
-            public int BoudRate { get; set; }
-            public string Model { get; set; }
-            public string SerialNumber { get; set; }
-            public bool Debug { get; set; }
-            public string LogPath { get; set; }
-
+            _request = new DriverRequest(); 
+            _answer = new DriverAnswer();
         }
-        public struct Answer
+        public class DriverRequest
+        {
+            string _command = "GetDriverInfo";
+            public string Command { get => _command; set => _command = value; }
+
+            public string Serialize()
+            {
+                JsonSerializerOptions options = new()
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+                };
+                return JsonSerializer.Serialize(this, options);
+            }
+        }
+
+        public class DriverAnswer
         {
             public int Result { get; set; }
-            public string Description { get; set; }
-            public string SessionKey { get; set; }
-            public string ProtocolVer { get; set; }
-            public string FfdTotalVer { get; set; }
-            public string ProgramDate { get; set; }
+            public string? Description {  get; set; }
+            public string? DriverVer { get; set; }
+            public string? ProtocolVer {  get; set; }
+            public string? DriverBaseVer {  get; set; }
+            public string? DriverSalesVer {  get; set; }
 
-        }
-
-        public void Serialize(Session3.Request request)
-        {
-            JsonSerializerOptions options = new()
+            public void Deserialize(string jsonstring)
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-            };
-
-            _message = JsonSerializer.Serialize(request, options);
-        }
-
-        public void Deserialize(Session3.Answer answer, string jsonstring) 
-        { 
-            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
-            answer = JsonSerializer.Deserialize<Session3.Answer>(jsonstring, options);
+                string ss = jsonstring.Substring(jsonstring.IndexOf('{'));
+                JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
+                _answer = JsonSerializer.Deserialize<DriverAnswer>(ss, options);
+            }
 
         }
-        //public bool Open(TcpSocket socket, Session.Request request)
-        //{
-
-        //    return false;
-        //}
     }
+
     public class Session
     {
         SessionRequest _request;
@@ -188,17 +186,6 @@ namespace MercAPI
         {
             _request = new SessionRequest();
             _answer  = new SessionAnswer();
-        }
-
-        public void Serialize()
-        {
-            JsonSerializerOptions options = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-            };
-
-            _message = JsonSerializer.Serialize(_request, options);
         }
 
         public void Deserialize(string jsonstring)
