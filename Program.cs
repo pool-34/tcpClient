@@ -27,12 +27,12 @@ namespace tcpClient
 
             if (tcpSocket.Open())
             {
-                if (tcpSocket.Send(driverinfo.Request.Serialize()))
+                if (tcpSocket.Send(Json.Serialize(driverinfo.Request)))
                 {
                     Console.WriteLine(tcpSocket.Message);
                     Console.WriteLine(tcpSocket.Answer);
 
-                    driverinfo.Answer.Deserialize(tcpSocket.Answer);
+                    Json.Deserialize(driverinfo.Answer, tcpSocket.Answer);
 
                     Console.WriteLine($"result: {driverinfo.Answer.Result}");
                     Console.WriteLine($"driverVer: {driverinfo.Answer.DriverVer}");

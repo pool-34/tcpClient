@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static MercAPI.DriverInfo;
 using static MercAPI.Session;
 
 namespace MercAPI
@@ -128,7 +129,7 @@ namespace MercAPI
     public class DriverInfo
     {
         DriverRequest _request;
-        static DriverAnswer _answer;
+        DriverAnswer _answer;
 
         public DriverRequest Request { get => _request; }
         public DriverAnswer Answer { get => _answer; }
@@ -142,16 +143,6 @@ namespace MercAPI
         {
             string _command = "GetDriverInfo";
             public string Command { get => _command; set => _command = value; }
-
-            public string Serialize()
-            {
-                JsonSerializerOptions options = new()
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-                };
-                return JsonSerializer.Serialize(this, options);
-            }
         }
 
         public class DriverAnswer
@@ -162,13 +153,6 @@ namespace MercAPI
             public string? ProtocolVer {  get; set; }
             public string? DriverBaseVer {  get; set; }
             public string? DriverSalesVer {  get; set; }
-
-            public void Deserialize(string jsonstring)
-            {
-                string ss = jsonstring.Substring(jsonstring.IndexOf('{'));
-                JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
-                _answer = JsonSerializer.Deserialize<DriverAnswer>(ss, options);
-            }
 
         }
     }
@@ -186,12 +170,6 @@ namespace MercAPI
         {
             _request = new SessionRequest();
             _answer  = new SessionAnswer();
-        }
-
-        public void Deserialize(string jsonstring)
-        {
-            JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
-            _answer = JsonSerializer.Deserialize<SessionAnswer>(jsonstring, options);
         }
 
         public class SessionRequest
@@ -217,6 +195,30 @@ namespace MercAPI
         }
 
     }
+
+    public static class Json
+    {
+        static JsonSerializerOptions options = new()
+            { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+              DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+              PropertyNameCaseInsensitive = true };
+        public static string Serialize(DriverInfo.DriverRequest request)
+        {
+            return JsonSerializer.Serialize(request, options);
+        }
+        public static void Deserialize(DriverInfo.DriverAnswer container, string jsonstring)
+        {
+            string ss = jsonstring.Substring(jsonstring.IndexOf('{'));
+            container = JsonSerializer.Deserialize<DriverAnswer>(ss, options);
+        }
+
+        public static void Deserialize(Session.SessionAnswer container, string jsonstring)
+        {
+            container = JsonSerializer.Deserialize<SessionAnswer>(jsonstring, options);
+        }
+
+
+}
 }
 
   
