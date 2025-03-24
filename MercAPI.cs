@@ -132,7 +132,7 @@ namespace MercAPI
         DriverAnswer _answer;
 
         public DriverRequest Request { get => _request; }
-        public DriverAnswer Answer { get => _answer; }
+        public DriverAnswer Answer { get => _answer; set => _answer = value; }
 
         public DriverInfo()
         {
@@ -188,6 +188,7 @@ namespace MercAPI
         public class SessionAnswer
         {
             public int Result { get; set; }
+            public string SessionKey { get; set; }
             public string Description { get; set; }
             public string ProtocolVer { get; set; }
             public string FfdTotalVer { get; set; }
@@ -206,15 +207,10 @@ namespace MercAPI
         {
             return JsonSerializer.Serialize(request, options);
         }
-        public static void Deserialize(DriverInfo.DriverAnswer container, string jsonstring)
+        public static DriverInfo.DriverAnswer Deserialize(string jsonstring)
         {
             string ss = jsonstring.Substring(jsonstring.IndexOf('{'));
-            container = JsonSerializer.Deserialize<DriverAnswer>(ss, options);
-        }
-
-        public static void Deserialize(Session.SessionAnswer container, string jsonstring)
-        {
-            container = JsonSerializer.Deserialize<SessionAnswer>(jsonstring, options);
+            return JsonSerializer.Deserialize<DriverAnswer>(ss, options);
         }
 
 
